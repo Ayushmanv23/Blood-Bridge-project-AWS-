@@ -6,13 +6,16 @@
     <p>Welcome, <span style="color: var(--primary); font-weight: bold;">{{ username }}</span> ({{ role|title }})</p>
 </div>
 
-<!-- DONOR VIEW -->
+<!-- ================= DONOR VIEW ================= -->
 {% if role == 'donor' %}
 <div class="grid">
     <div class="card">
         <h3>My Profile</h3>
-        <p><strong>Blood Group:</strong> <span style="color: var(--primary); font-size: 1.2rem;">{{
-                user_data.get('blood_group', 'N/A') }}</span></p>
+        <p><strong>Blood Group:</strong>
+            <span style="color: var(--primary); font-size: 1.2rem;">
+                {{ user_data.get('blood_group', 'N/A') }}
+            </span>
+        </p>
         <p><strong>Last Donation:</strong> {{ user_data.get('last_donation', 'N/A') }}</p>
         <div class="mt-1">
             <span class="btn btn-outline">Eligibility: Eligible</span>
@@ -26,13 +29,28 @@
         <div style="display: flex; flex-direction: column; gap: 1rem;">
             {% for req in requests %}
             <div
-                style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px; border-left: 4px solid {% if req.urgency == 'High' %}var(--danger){% else %}var(--warning){% endif %}; display: flex; justify-content: space-between; align-items: center;">
+                style="background: rgba(255,255,255,0.05);
+                       padding: 1rem;
+                       border-radius: 8px;
+                       border-left: 4px solid {% if req.urgency == 'High' %}var(--danger){% else %}var(--warning){% endif %};
+                       display: flex;
+                       justify-content: space-between;
+                       align-items: center;">
                 <div>
-                    <h4 style="margin: 0;">{{ req.blood_group }} needed at {{ req.requested_by }}</h4>
-                    <small style="color: var(--text-muted);">Urgency: {{ req.urgency }} | Quantity: {{ req.quantity }}
-                        units</small>
+                    <h4 style="margin: 0;">
+                        {{ req.blood_group }} needed at {{ req.requested_by }}
+                    </h4>
+                    <small style="color: var(--text-muted);">
+                        Urgency: {{ req.urgency }} | Quantity: {{ req.quantity }} units
+                    </small>
                 </div>
-                <button class="btn btn-primary" style="padding: 0.4rem 1rem; font-size: 0.8rem;">Donate Now</button>
+
+                <!-- ✅ FIXED DONATE BUTTON -->
+                <a href="{{ url_for('inventory_page', from_donate='true') }}"
+                   class="btn btn-primary"
+                   style="padding: 0.4rem 1rem; font-size: 0.8rem;">
+                    Donate Now
+                </a>
             </div>
             {% else %}
             <p>No active requests at the moment.</p>
@@ -41,17 +59,16 @@
     </div>
 </div>
 
-<!-- HOSPITAL VIEW -->
+<!-- ================= HOSPITAL VIEW ================= -->
 {% elif role == 'hospital' %}
 <div class="grid">
-    <!-- Search Donors -->
     <div class="card" style="grid-column: span 2;">
         <h3>Find Donors</h3>
         <form action="{{ url_for('dashboard') }}" method="GET" style="display: flex; gap: 1rem; flex-wrap: wrap;">
-            <input type="text" name="search" value="true" hidden>
-            <input type="text" name="state" class="form-control" placeholder="State" style="flex: 1;">
-            <input type="text" name="area" class="form-control" placeholder="Area" style="flex: 1;">
-            <select name="blood_group" class="form-control" style="flex: 1;">
+            <input type="hidden" name="search" value="true">
+            <input type="text" name="state" class="form-control" placeholder="State">
+            <input type="text" name="area" class="form-control" placeholder="Area">
+            <select name="blood_group" class="form-control">
                 <option value="">Any Blood Group</option>
                 <option value="A+">A+</option>
                 <option value="A-">A-</option>
@@ -64,125 +81,38 @@
             </select>
             <button type="submit" class="btn btn-outline">Search</button>
         </form>
-
-        {% if search_results is defined and search_results %}
-        <div class="mt-1">
-            <h4>Search Results</h4>
-            <div style="display: grid; gap: 0.5rem; margin-top: 0.5rem;">
-                {% for donor in search_results %}
-                <div
-                    style="background: rgba(255,255,255,0.05); padding: 0.5rem; border-radius: 4px; display: flex; justify-content: space-between;">
-                    <span>{{ donor.username }} ({{ donor.blood_group }})</span>
-                    <span style="color: var(--text-muted);">{{ donor.area }}, {{ donor.state }}</span>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-        {% elif request.args.get('search') %}
-        <p class="mt-1 text-danger">No donors found matching criteria.</p>
-        {% endif %}
     </div>
 
     <div class="card">
         <h3>Submit Blood Request</h3>
         <form action="{{ url_for('add_request') }}" method="POST">
-            <div class="form-group">
-                <label class="form-label">Blood Group Required</label>
-                <select name="blood_group" class="form-control">
-                    <option value="A+">A+</option>
-                    <option value="A-">A-</option>
-                    <option value="B+">B+</option>
-                    <option value="B-">B-</option>
-                    <option value="O+">O+</option>
-                    <option value="O-">O-</option>
-                    <option value="AB+">AB+</option>
-                    <option value="AB-">AB-</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Quantity (Units)</label>
-                <input type="number" name="quantity" class="form-control" min="1" required>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Urgency</label>
-                <select name="urgency" class="form-control">
-                    <option value="High">High (Critical)</option>
-                    <option value="Medium">Medium</option>
-                    <option value="Low">Low</option>
-                </select>
-            </div>
-            <button type="submit" class="btn btn-primary">Request Blood</button>
+            <select name="blood_group" class="form-control">
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+            </select>
+            <input type="number" name="quantity" class="form-control mt-1" min="1" required>
+            <select name="urgency" class="form-control mt-1">
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+            </select>
+            <button type="submit" class="btn btn-primary mt-1">Request Blood</button>
         </form>
     </div>
-
-    <div class="card">
-        <h3>Current Inventory Status</h3>
-        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; text-align: center;">
-            {% for bg, count in inventory.items() %}
-            <div style="background: rgba(255,59,59,0.1); padding: 0.5rem; border-radius: 4px;">
-                <div style="font-weight: bold; color: var(--primary);">{{ bg }}</div>
-                <div style="font-size: 0.9rem;">{{ count }}</div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
 </div>
 
-<!-- BLOOD BANK VIEW -->
+<!-- ================= BLOOD BANK VIEW ================= -->
 {% elif role == 'blood_bank' %}
-<div class="grid">
-    <div class="card" style="grid-column: span 3;">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h3>Inventory Overview</h3>
-            <a href="{{ url_for('inventory_page') }}" class="btn btn-outline">Update Stock</a>
-        </div>
-
-        <div class="grid mt-1" style="grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));">
-            {% for bg, count in inventory.items() %}
-            <div
-                style="text-align: center; padding: 1.5rem; background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px solid {% if count < 5 %}var(--danger){% else %}var(--success){% endif %};">
-                <h2
-                    style="font-size: 2rem; margin: 0; color: {% if count < 5 %}var(--danger){% else %}var(--success){% endif %};">
-                    {{ count }}</h2>
-                <span style="font-weight: bold;">{{ bg }}</span>
-                {% if count < 5 %} <div style="font-size: 0.7rem; color: var(--danger); margin-top: 0.2rem;">Low Stock!
-            </div>
-            {% endif %}
-        </div>
-        {% endfor %}
-    </div>
-</div>
-
-<div class="card" style="grid-column: span 3;">
-    <h3>Recent Requests</h3>
-    <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
-        <thead>
-            <tr style="text-align: left; border-bottom: 1px solid var(--glass-border);">
-                <th style="padding: 0.5rem;">Hospital</th>
-                <th style="padding: 0.5rem;">Blood Group</th>
-                <th style="padding: 0.5rem;">Quantity</th>
-                <th style="padding: 0.5rem;">Urgency</th>
-                <th style="padding: 0.5rem;">Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for req in requests %}
-            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                <td style="padding: 0.8rem 0.5rem;">{{ req.requested_by }}</td>
-                <td style="padding: 0.8rem 0.5rem; font-weight: bold;">{{ req.blood_group }}</td>
-                <td style="padding: 0.8rem 0.5rem;">{{ req.quantity }}</td>
-                <td style="padding: 0.8rem 0.5rem;">
-                    <span
-                        style="padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.8rem; background: {% if req.urgency == 'High' %}rgba(255,0,68,0.2){% else %}rgba(255,204,0,0.2){% endif %}; color: {% if req.urgency == 'High' %}var(--danger){% else %}var(--warning){% endif %};">
-                        {{ req.urgency }}
-                    </span>
-                </td>
-                <td style="padding: 0.8rem 0.5rem;">Pending</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+<div class="card">
+    <h3>Inventory Overview</h3>
+    <a href="{{ url_for('inventory_page') }}" class="btn btn-outline">Update Stock</a>
 </div>
 {% endif %}
+
 {% endblock %}
