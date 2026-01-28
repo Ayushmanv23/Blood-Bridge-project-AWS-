@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card" style="max-width: 600px; margin: 2rem auto;">
+    <div style="display: flex; justify-content: space-between; align-items: center; mb-1">
+        <h2>Update Inventory</h2>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline"
+            style="font-size: 0.8rem; padding: 0.4rem 1rem;">Back to Dashboard</a>
+    </div>
+
+    <p class="form-label mb-1">Manually adjust blood stock levels.</p>
+
+    <form action="{{ url_for('update_inventory') }}" method="POST" class="mt-1">
+        <div class="form-group">
+            <label class="form-label">Blood Group</label>
+            <select name="blood_group" class="form-control">
+                {% for bg in inventory.keys() %}
+                <option value="{{ bg }}">{{ bg }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Quantity Change</label>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <input type="number" name="quantity_change" class="form-control" placeholder="e.g. +5 or -2" required>
+                <small style="color: var(--text-muted);">Use negative values to reduce stock.</small>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+            Update Stock
+        </button>
+    </form>
+
+    <hr style="border: 0; border-top: 1px solid var(--glass-border); margin: 2rem 0;">
+
+    <h3>Current Level Snapshot</h3>
+    <div class="grid" style="grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 1rem;">
+        {% for bg, count in inventory.items() %}
+        <div style="text-align: center; background: rgba(0,0,0,0.2); padding: 0.5rem; border-radius: 8px;">
+            <div style="font-weight: bold;">{{ bg }}</div>
+            <div style="color: var(--primary);">{{ count }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

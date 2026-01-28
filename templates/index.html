@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section text-center animate-fade-in" style="padding: 4rem 0;">
+    <h1
+        style="font-size: 3.5rem; margin-bottom: 1rem; background: linear-gradient(to right, #ff3b3b, #ffffff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+        Bridge the Gap. Save a Life.
+    </h1>
+    <p style="font-size: 1.2rem; color: var(--text-muted); max-width: 600px; margin: 0 auto 2rem;">
+        BloodBridge is an advanced blood management system connecting hospitals, blood banks, and donors in real-time.
+        Secure, efficient, and ready for the future.
+    </p>
+    <div style="display: flex; gap: 1rem; justify-content: center;">
+        {% if session.get('username') %}
+        <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Go to Dashboard</a>
+        {% else %}
+        <a href="{{ url_for('register') }}" class="btn btn-primary">Become a Donor</a>
+        <a href="{{ url_for('login') }}" class="btn btn-outline">Login</a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- About Section -->
+<div id="about" class="section" style="padding: 4rem 0; border-top: 1px solid var(--glass-border);">
+    <div class="grid" style="align-items: center;">
+        <div class="card">
+            <h2>About Us</h2>
+            <p style="color: var(--text-muted); margin-bottom: 1rem; text-align: justify;">
+                BloodBridge was founded with a single mission: to eliminate blood shortages through technology.
+                By creating a centralized network, we ensure that every drop of blood counts.
+            </p>
+            <p style="color: var(--text-muted); text-align: justify;">
+                Our platform manages inventory, tracks requests, and facilitates donations with unprecedented speed and
+                accuracy.
+            </p>
+        </div>
+        <div style="text-align: center;">
+            <div style="font-size: 5rem; color: var(--primary);">🩸</div>
+        </div>
+    </div>
+</div>
+
+<!-- Services & Future Architecture -->
+<div id="services" class="section" style="padding: 4rem 0; border-top: 1px solid var(--glass-border);">
+    <h2 class="text-center mb-2">Our Architecture & Services</h2>
+    <div class="grid">
+        <div class="card">
+            <h3 class="text-center" style="color: #ff3b3b;">Real-Time Management</h3>
+            <p style="color: var(--text-muted); text-align: justify;">
+                Instant updates for blood inventory and emergency requests using efficient in-memory data structures,
+                optimized for speed.
+            </p>
+        </div>
+        <div class="card">
+            <h3 class="text-center" style="color: #ff3b3b;">Security First</h3>
+            <p style="color: var(--text-muted); text-align: justify;">
+                Role-based access control (RBAC) ensures strict data privacy for Donors, Hospitals, and Admins.
+            </p>
+        </div>
+        <div class="card">
+            <h3 class="text-center" style="color: #ff3b3b;">Trusted Donor Network</h3>
+            <p style="color: var(--text-muted); text-align: justify;">
+                Join a community of verified donors. We ensure that every profile is authenticated and every donation
+                reaches the right patient in time.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Contact Section -->
+<div id="contact" class="section" style="padding: 4rem 0; border-top: 1px solid var(--glass-border);">
+    <div class="card" style="max-width: 600px; margin: 0 auto;">
+        <h2 class="text-center mb-1">Contact Us</h2>
+        <p class="text-center form-label mb-1">Have questions? Reach out to our team.</p>
+
+        <form action="{{ url_for('contact') }}" method="POST">
+            <div class="form-group">
+                <label class="form-label">Your Name</label>
+                <input type="text" name="name" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" name="email" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Message</label>
+                <textarea name="message" class="form-control" rows="4" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Send Message</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

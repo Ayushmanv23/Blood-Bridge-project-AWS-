@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card" style="max-width: 500px; margin: 2rem auto;">
+    <h2 class="text-center mb-1">Join BloodBridge</h2>
+    <p class="text-center form-label mb-1">Create an account to save lives</p>
+
+    <form action="{{ url_for('register') }}" method="POST" class="mt-1" onsubmit="return validateRegisterForm()">
+        <div class="form-group">
+            <label class="form-label">Username</label>
+            <input type="text" name="username" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" name="password" id="password" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Role</label>
+            <select name="role" id="roleSelect" class="form-control" onchange="toggleDonorFields()">
+                <option value="donor">Donor</option>
+                <option value="hospital">Hospital</option>
+                <option value="blood_bank">Blood Bank Manager</option>
+            </select>
+        </div>
+
+        <div id="donorFields">
+            <div class="form-group">
+                <label class="form-label">Blood Group</label>
+                <select name="blood_group" class="form-control">
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Gender</label>
+                <select name="gender" class="form-control">
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">State</label>
+                <input type="text" name="state" class="form-control" placeholder="e.g. California">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Area/City</label>
+                <input type="text" name="area" class="form-control" placeholder="e.g. Los Angeles">
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+            Register
+        </button>
+    </form>
+
+    <div class="text-center mt-1">
+        <p style="font-size: 0.9rem; color: var(--text-muted);">
+            Already have an account? <a href="{{ url_for('login') }}" style="color: var(--primary);">Login</a>
+        </p>
+    </div>
+</div>
+
+<script>
+    function toggleDonorFields() {
+        const role = document.getElementById('roleSelect').value;
+        const donorFields = document.getElementById('donorFields');
+        if (role === 'donor') {
+            donorFields.style.display = 'block';
+        } else {
+            donorFields.style.display = 'none';
+        }
+    }
+</script>
+{% endblock %}
