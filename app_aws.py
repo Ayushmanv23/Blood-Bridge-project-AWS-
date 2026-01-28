@@ -151,6 +151,10 @@ def contact():
     flash("Thank you for contacting us. Our team will get back to you shortly.", "success")
     return redirect(url_for('home'))
 
+@app.route('/blog')
+def blog():
+    return render_template('blog.html')
+
 # ================= RUN =================
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
