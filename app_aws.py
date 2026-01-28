@@ -3,16 +3,12 @@ import boto3
 import uuid
 import os
 
-# ================= AWS CLIENTS =================
+# ================= AWS CLIENT =================
 dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
-sns = boto3.client('sns', region_name='us-east-1')
 
 USERS_TABLE = dynamodb.Table('BloodBridgeUsers')
 REQUESTS_TABLE = dynamodb.Table('BloodRequests')
 INVENTORY_TABLE = dynamodb.Table('BloodInventory')
-
-SNS_TOPIC_ARN = "arn:aws:sns:ap-south-1:XXXXXXXXXXXX:BloodBridgeAlerts"
-# ↑ replace ACCOUNT ID only (region auto from EC2)
 
 # ================= FLASK APP =================
 app = Flask(__name__)
@@ -32,20 +28,6 @@ def get_all_requests():
 def create_blood_request(data):
     data['request_id'] = str(uuid.uuid4())
     REQUESTS_TABLE.put_item(Item=data)
-
-    # SNS Notification
-    sns.publish(
-        TopicArn=SNS_TOPIC_ARN,
-        Subject="🚨 New Blood Request",
-        Message=f"""
-New Blood Request Raised!
-
-Blood Group: {data['blood_group']}
-Quantity: {data['quantity']}
-Urgency: {data['urgency']}
-Hospital: {data['requested_by']}
-"""
-    )
 
 def get_inventory():
     res = INVENTORY_TABLE.scan()
@@ -174,7 +156,7 @@ def add_request():
         'requested_by': session['username']
     })
 
-    flash('Blood request submitted & notifications sent!', 'success')
+    flash('Blood request submitted successfully!', 'success')
     return redirect(url_for('dashboard'))
 
 # ---------- UPDATE INVENTORY ----------
