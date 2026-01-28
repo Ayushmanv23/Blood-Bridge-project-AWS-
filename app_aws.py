@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 import boto3
 import uuid
 import os
+from decimal import Decimal
 
 # ================= AWS CLIENT =================
 dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
@@ -23,23 +24,32 @@ def create_user(user_data):
     USERS_TABLE.put_item(Item=user_data)
 
 def get_all_requests():
-    return REQUESTS_TABLE.scan().get('Items', [])
+    try:
+        return REQUESTS_TABLE.scan().get('Items', [])
+    except Exception as e:
+        print("Request scan error:", e)
+        return []
 
 def create_blood_request(data):
     data['request_id'] = str(uuid.uuid4())
+    data['quantity'] = Decimal(str(data['quantity']))  # DynamoDB fix
     REQUESTS_TABLE.put_item(Item=data)
 
 def get_inventory():
-    res = INVENTORY_TABLE.scan()
-    return {item['blood_group']: int(item['quantity']) for item in res.get('Items', [])}
+    try:
+        res = INVENTORY_TABLE.scan()
+        return {item['blood_group']: int(item['quantity']) for item in res.get('Items', [])}
+    except Exception as e:
+        print("Inventory scan error:", e)
+        return {}
 
 def update_inventory(blood_group, qty):
     INVENTORY_TABLE.update_item(
         Key={'blood_group': blood_group},
         UpdateExpression="SET quantity = if_not_exists(quantity, :z) + :q",
         ExpressionAttributeValues={
-            ':q': qty,
-            ':z': 0
+            ':q': Decimal(str(qty)),   # DynamoDB fix
+            ':z': Decimal('0')
         }
     )
 
@@ -151,7 +161,7 @@ def add_request():
 
     create_blood_request({
         'blood_group': request.form['blood_group'],
-        'quantity': int(request.form['quantity']),
+        'quantity': request.form['quantity'],  # handled as Decimal inside
         'urgency': request.form['urgency'],
         'requested_by': session['username']
     })
@@ -166,7 +176,7 @@ def update_inventory_route():
         return redirect(url_for('dashboard'))
 
     blood_group = request.form['blood_group']
-    qty = int(request.form['quantity_change'])
+    qty = request.form['quantity_change']
 
     update_inventory(blood_group, qty)
     flash(f'Inventory updated for {blood_group}', 'success')
