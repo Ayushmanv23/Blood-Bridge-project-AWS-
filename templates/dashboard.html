@@ -15,7 +15,8 @@
 <div class="grid">
     <div class="card">
         <h3>My Profile</h3>
-        <p><strong>Blood Group:</strong>
+        <p>
+            <strong>Blood Group:</strong>
             <span style="color: var(--primary); font-size: 1.2rem;">
                 {{ user_data.get('blood_group', 'N/A') }}
             </span>
@@ -65,9 +66,9 @@
 <!-- ================= HOSPITAL VIEW ================= -->
 {% elif role == 'hospital' %}
 <div class="grid">
-    <!-- FIND DONORS -->
     <div class="card" style="grid-column: span 2;">
         <h3>Find Donors</h3>
+
         <form action="{{ url_for('dashboard') }}" method="GET"
               style="display: flex; gap: 1rem; flex-wrap: wrap;">
             <input type="hidden" name="search" value="true">
@@ -75,23 +76,18 @@
             <input type="text" name="area" class="form-control" placeholder="Area">
             <select name="blood_group" class="form-control">
                 <option value="">Any Blood Group</option>
-                <option value="A+">A+</option>
-                <option value="A-">A-</option>
-                <option value="B+">B+</option>
-                <option value="B-">B-</option>
-                <option value="O+">O+</option>
-                <option value="O-">O-</option>
-                <option value="AB+">AB+</option>
-                <option value="AB-">AB-</option>
+                <option>A+</option><option>A-</option>
+                <option>B+</option><option>B-</option>
+                <option>O+</option><option>O-</option>
+                <option>AB+</option><option>AB-</option>
             </select>
             <button type="submit" class="btn btn-outline">Search</button>
         </form>
 
-        <!-- ✅ SEARCH RESULTS (FIXED) -->
-        {% if search_results %}
+        {% if search_results is defined and search_results %}
         <div class="mt-1">
             <h4>Search Results</h4>
-            <div style="display: grid; gap: 0.8rem;">
+            <div style="display: grid; gap: 0.7rem;">
                 {% for donor in search_results %}
                 <div style="
                     background: rgba(255,255,255,0.05);
@@ -99,7 +95,7 @@
                     border-radius: 6px;
                     display: flex;
                     justify-content: space-between;">
-                    <span><strong>{{ donor.username }}</strong> ({{ donor.blood_group }})</span>
+                    <strong>{{ donor.username }} ({{ donor.blood_group }})</strong>
                     <span style="color: var(--text-muted);">
                         {{ donor.area }}, {{ donor.state }}
                     </span>
@@ -112,32 +108,25 @@
         {% endif %}
     </div>
 
-    <!-- SUBMIT REQUEST -->
     <div class="card">
         <h3>Submit Blood Request</h3>
         <form action="{{ url_for('add_request') }}" method="POST">
             <select name="blood_group" class="form-control">
-                <option value="A+">A+</option>
-                <option value="A-">A-</option>
-                <option value="B+">B+</option>
-                <option value="B-">B-</option>
-                <option value="O+">O+</option>
-                <option value="O-">O-</option>
-                <option value="AB+">AB+</option>
-                <option value="AB-">AB-</option>
+                <option>A+</option><option>A-</option>
+                <option>B+</option><option>B-</option>
+                <option>O+</option><option>O-</option>
+                <option>AB+</option><option>AB-</option>
             </select>
 
             <input type="number" name="quantity" class="form-control mt-1" min="1" required>
 
             <select name="urgency" class="form-control mt-1">
-                <option value="High">High</option>
-                <option value="Medium">Medium</option>
-                <option value="Low">Low</option>
+                <option>High</option>
+                <option>Medium</option>
+                <option>Low</option>
             </select>
 
-            <button type="submit" class="btn btn-primary mt-1">
-                Request Blood
-            </button>
+            <button type="submit" class="btn btn-primary mt-1">Request Blood</button>
         </form>
     </div>
 </div>
@@ -148,9 +137,7 @@
     <div class="card" style="grid-column: span 3;">
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <h3>Inventory Overview</h3>
-            <a href="{{ url_for('inventory_page') }}" class="btn btn-outline">
-                Update Stock
-            </a>
+            <a href="{{ url_for('inventory_page') }}" class="btn btn-outline">Update Stock</a>
         </div>
 
         <div class="grid mt-1"
@@ -162,12 +149,11 @@
                 background: rgba(0,0,0,0.25);
                 border-radius: 12px;
                 border: 1px solid {% if count < 5 %}var(--danger){% else %}var(--success){% endif %};">
-                <h2 style="
-                    margin: 0;
+                <h2 style="margin: 0;
                     color: {% if count < 5 %}var(--danger){% else %}var(--success){% endif %};">
                     {{ count }}
                 </h2>
-                <span style="font-weight: bold;">{{ bg }}</span>
+                <strong>{{ bg }}</strong>
                 {% if count < 5 %}
                 <div style="font-size: 0.7rem; color: var(--danger); margin-top: 0.3rem;">
                     Low Stock
@@ -177,32 +163,32 @@
             {% endfor %}
         </div>
     </div>
-</div>
 
-<div class="card mt-1">
-    <h3>Recent Requests</h3>
-    <table style="width: 100%; margin-top: 1rem;">
-        <thead>
-            <tr>
-                <th>Hospital</th>
-                <th>Blood Group</th>
-                <th>Quantity</th>
-                <th>Urgency</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for req in requests %}
-            <tr>
-                <td>{{ req.requested_by }}</td>
-                <td>{{ req.blood_group }}</td>
-                <td>{{ req.quantity }}</td>
-                <td>{{ req.urgency }}</td>
-                <td>Pending</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="card" style="grid-column: span 3;">
+        <h3>Recent Requests</h3>
+        <table class="requests-table">
+            <thead>
+                <tr>
+                    <th>Hospital</th>
+                    <th>Blood Group</th>
+                    <th>Quantity</th>
+                    <th>Urgency</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in requests %}
+                <tr>
+                    <td>{{ req.requested_by }}</td>
+                    <td><strong>{{ req.blood_group }}</strong></td>
+                    <td>{{ req.quantity }}</td>
+                    <td>{{ req.urgency }}</td>
+                    <td>Pending</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endif %}
 
