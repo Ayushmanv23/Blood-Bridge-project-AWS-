@@ -52,12 +52,13 @@ def get_inventory():
         return {}
 
 def update_inventory(blood_group, qty):
+    qty = int(qty)  # normalize +5 / -2
     INVENTORY_TABLE.update_item(
         Key={'blood_group': blood_group},
         UpdateExpression="SET quantity = if_not_exists(quantity, :z) + :q",
         ExpressionAttributeValues={
-            ':q': Decimal(str(qty)),
-            ':z': Decimal('0')
+            ':q': Decimal(qty),
+            ':z': Decimal(0)
         }
     )
 
