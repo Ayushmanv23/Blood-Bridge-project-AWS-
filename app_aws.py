@@ -31,9 +31,6 @@ def get_all_requests():
         return []
 
 def create_blood_request(data):
-    """
-    SAFE DynamoDB insert (explicit typing)
-    """
     item = {
         'request_id': str(uuid.uuid4()),
         'blood_group': str(data['blood_group']),
@@ -52,12 +49,11 @@ def get_inventory():
         return {}
 
 def update_inventory(blood_group, qty):
-    qty = int(qty)  # normalize +5 / -2
     INVENTORY_TABLE.update_item(
         Key={'blood_group': blood_group},
         UpdateExpression="SET quantity = if_not_exists(quantity, :z) + :q",
         ExpressionAttributeValues={
-            ':q': Decimal(qty),
+            ':q': Decimal(int(qty)),
             ':z': Decimal(0)
         }
     )
@@ -169,9 +165,9 @@ def add_request():
         return redirect(url_for('dashboard'))
 
     create_blood_request({
-        'blood_group': request.form['blood_group'],
-        'quantity': request.form['quantity'],
-        'urgency': request.form['urgency'],
+        'blood_group': request.form.get('blood_group'),
+        'quantity': request.form.get('quantity'),
+        'urgency': request.form.get('urgency'),
         'requested_by': session['username']
     })
 
@@ -184,8 +180,14 @@ def update_inventory_route():
     if 'username' not in session or session['role'] != 'blood_bank':
         return redirect(url_for('dashboard'))
 
-    blood_group = request.form['blood_group']
-    qty = request.form['quantity_change']
+    blood_group = request.form.get('blood_group')
+    qty_raw = request.form.get('quantity_change', '').strip()
+
+    if not qty_raw or qty_raw in ['+', '-']:
+        flash('Please enter a valid quantity (e.g. 5 or -2)', 'error')
+        return redirect(url_for('dashboard'))
+
+    qty = int(qty_raw)
 
     update_inventory(blood_group, qty)
     flash(f'Inventory updated for {blood_group}', 'success')
@@ -212,4 +214,4 @@ def contact():
 
 # ================= RUN =================
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5000, debug=True)
