@@ -98,20 +98,50 @@ def register():
 
     return render_template('register.html')
 
+# ================= DASHBOARD (FIXED & COMPLETE) =================
 @app.route('/dashboard')
 def dashboard():
     if 'username' not in session:
         return redirect(url_for('login'))
 
+    username = session['username']
+    role = session['role']
+    user_data = get_user(username)
+
+    inventory = get_inventory()
+    requests_data = get_all_requests()
+    search_results = []
+
+    # ✅ HOSPITAL: SEARCH DONORS
+    if role == 'hospital' and request.args.get('search'):
+        s_state = request.args.get('state', '').lower()
+        s_area = request.args.get('area', '').lower()
+        s_blood = request.args.get('blood_group', '').lower()
+
+        users = USERS_TABLE.scan().get('Items', [])
+        for u in users:
+            if u.get('role') == 'donor':
+                match = True
+                if s_state and s_state not in u.get('state', '').lower():
+                    match = False
+                if s_area and s_area not in u.get('area', '').lower():
+                    match = False
+                if s_blood and s_blood != u.get('blood_group', '').lower():
+                    match = False
+                if match:
+                    search_results.append(u)
+
     return render_template(
         'dashboard.html',
-        username=session['username'],
-        role=session['role'],
-        user_data=get_user(session['username']),
-        inventory=get_inventory(),
-        requests=get_all_requests()
+        username=username,
+        role=role,
+        user_data=user_data,
+        inventory=inventory,
+        requests=requests_data,
+        search_results=search_results
     )
 
+# ================= HOSPITAL: ADD REQUEST =================
 @app.route('/add_request', methods=['POST'])
 def add_request():
     create_blood_request({
@@ -123,7 +153,7 @@ def add_request():
     flash("Blood request submitted successfully", "success")
     return redirect(url_for('dashboard'))
 
-# ✅ INVENTORY PAGE WITH DONOR POPUP
+# ================= INVENTORY =================
 @app.route('/inventory')
 def inventory_page():
     if 'username' not in session:
@@ -146,6 +176,7 @@ def update_inventory_route():
     flash("Inventory updated successfully", "success")
     return redirect(url_for('inventory_page'))
 
+# ================= STATIC PAGES =================
 @app.route('/contact', methods=['POST'])
 def contact():
     flash("Thank you for contacting us. Our team will get back to you shortly.", "success")
