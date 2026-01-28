@@ -31,9 +31,17 @@ def get_all_requests():
         return []
 
 def create_blood_request(data):
-    data['request_id'] = str(uuid.uuid4())
-    data['quantity'] = Decimal(str(data['quantity']))  # DynamoDB fix
-    REQUESTS_TABLE.put_item(Item=data)
+    """
+    SAFE DynamoDB insert (explicit typing)
+    """
+    item = {
+        'request_id': str(uuid.uuid4()),
+        'blood_group': str(data['blood_group']),
+        'quantity': Decimal(str(data['quantity'])),
+        'urgency': str(data['urgency']),
+        'requested_by': str(data['requested_by'])
+    }
+    REQUESTS_TABLE.put_item(Item=item)
 
 def get_inventory():
     try:
@@ -48,7 +56,7 @@ def update_inventory(blood_group, qty):
         Key={'blood_group': blood_group},
         UpdateExpression="SET quantity = if_not_exists(quantity, :z) + :q",
         ExpressionAttributeValues={
-            ':q': Decimal(str(qty)),   # DynamoDB fix
+            ':q': Decimal(str(qty)),
             ':z': Decimal('0')
         }
     )
@@ -161,7 +169,7 @@ def add_request():
 
     create_blood_request({
         'blood_group': request.form['blood_group'],
-        'quantity': request.form['quantity'],  # handled as Decimal inside
+        'quantity': request.form['quantity'],
         'urgency': request.form['urgency'],
         'requested_by': session['username']
     })
