@@ -1,4 +1,4 @@
-<img width="1920" height="1020" alt="Screenshot 2026-01-28 222224" src="https://github.com/user-attachments/assets/3d642f5a-8463-45d1-ae07-c127c88f30b8" />BLOOD BRIDGE: CLOUD-BASED BLOOD DONATION & REQUEST MANAGEMENT SYSTEM USING AWS
+BRIDGE: CLOUD-BASED BLOOD DONATION & REQUEST MANAGEMENT SYSTEM USING AWS
 
 Project Description:
 With the growing demand for timely access to blood during medical emergencies, traditional blood donation and blood request systems often face serious limitations such as lack of centralized data, delayed communication, and inefficient coordination between donors, hospitals, and patients. These issues can result in critical delays during emergencies where every minute is vital. To overcome these challenges, Blood Bridge is developed as a cloud-based blood donation and request management platform that connects donors and recipients through a reliable and scalable system. Blood Bridge is built using Flask as the backend framework and is deployed on AWS EC2 to ensure high availability and scalability. The application uses Amazon DynamoDB as a NoSQL database for fast and efficient storage of user data, donor information, and blood request records. By leveraging cloud infrastructure, Blood Bridge ensures secure data handling, rapid response times, and uninterrupted service during peak usage, making it a dependable solution for emergency healthcare support.
@@ -8,6 +8,8 @@ Scenario 2: Centralized Blood Data Management
 Blood Bridge provides a centralized platform where blood availability data is stored and managed efficiently. All donor details, including blood group, contact information, and availability status, are stored securely in DynamoDB. When a blood request is raised, the system retrieves matching donor information based on blood group and location. This centralized data model eliminates the need for manual coordination and reduces dependency on traditional phone-based communication. 
 Scenario 3: Easy Access to Blood Availability Information
 Blood Bridge offers users a clean and user-friendly interface to search for blood availability across different locations. After logging in, users can filter donors by blood group and city, allowing them to quickly identify potential donors nearby. Flask dynamically fetches relevant data from DynamoDB and renders it on the frontend, ensuring real-time updates without page delays. 
+
+<img width="1920" height="1020" alt="Screenshot 2026-01-28 222224" src="https://github.com/user-attachments/assets/3d642f5a-8463-45d1-ae07-c127c88f30b8" />BLOOD 
 
 AWS Architecture
 
